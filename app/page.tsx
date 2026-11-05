@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { wedding, accounts } from "./config";
+import { wedding } from "./config";
 import { formatWeddingDate, koreanParts, monthGrid, WEEKDAYS } from "./date";
-import AccountSection from "./components/AccountSection";
 import Countdown from "./components/Countdown";
+import Gallery from "./components/Gallery";
+import Guestbook from "./components/Guestbook";
 
 export default function Page() {
   const { year, month, day } = koreanParts(wedding.date);
@@ -16,7 +17,7 @@ export default function Page() {
         <p className="eyebrow">MABINOGI MOBILE · WEDDING</p>
         <h1 className="names">
           {wedding.groom}
-          <span className="amp">&amp;</span>
+          <span className="amp">♥</span>
           {wedding.bride}
         </h1>
         <p className="hero-date">{label.short}</p>
@@ -70,14 +71,20 @@ export default function Page() {
         <Countdown target={wedding.date.toISOString()} />
       </section>
 
-      {/* 계좌 */}
-      <section className="section">
-        <h2 className="title">마음 전하실 곳</h2>
-        <p className="sub">축하의 마음을 전해주셔서 감사합니다.</p>
-        <AccountSection groups={accounts} />
+      {/* 갤러리 */}
+      <section className="section gallery-section">
+        <h2 className="title">GALLERY</h2>
+        <Gallery photos={wedding.gallery} />
       </section>
 
-      <footer className="foot">♥ {wedding.groom} &amp; {wedding.bride}</footer>
+      {/* 방명록 */}
+      <section className="section">
+        <h2 className="title">GUESTBOOK</h2>
+        <p className="sub">두 사람에게 축하의 한마디를 남겨주세요.</p>
+        <Guestbook />
+      </section>
+
+      <footer className="foot">{wedding.groom} ♥ {wedding.bride}</footer>
     </main>
   );
 }

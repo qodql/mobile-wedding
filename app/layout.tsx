@@ -10,7 +10,7 @@ const font = Gowun_Batang({
 });
 
 export const metadata: Metadata = {
-  title: `${wedding.groom} ♥ ${wedding.bride} 결혼합니다`,
+  title: `${wedding.groom} ♥ ${wedding.bride}`,
   description: "마비노기 모바일 결혼식에 초대합니다.",
 };
 
