@@ -26,7 +26,15 @@ export default function Page() {
       {/* 사진 */}
       <section className="photo">
         {wedding.photo ? (
-          <Image src={wedding.photo} alt="웨딩 사진" fill priority sizes="420px" style={{ objectFit: "cover" }} />
+          <Image
+            src={wedding.photo}
+            alt="웨딩 사진"
+            fill
+            preload
+            quality={90}
+            sizes="(max-width: 420px) 200vw, 840px"
+            style={{ objectFit: "cover" }}
+          />
         ) : (
           <div className="photo-empty">PHOTO</div>
         )}
