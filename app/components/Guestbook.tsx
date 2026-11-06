@@ -6,7 +6,7 @@ type Entry = { id: string; name: string; message: string; createdAt: number };
 type Field = "name" | "password" | "message";
 type FieldErrors = Partial<Record<Field, string>>;
 
-const PAGE = 3;
+const PAGE = 5;
 
 const fmt = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -272,3 +272,4 @@ export default function Guestbook() {
       </div>
     </div>
   );
+}
