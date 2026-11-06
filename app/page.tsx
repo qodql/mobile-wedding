@@ -24,7 +24,7 @@ export default function Page() {
       </header>
 
       {/* 사진 */}
-      <section className="photo">
+      <section className="photo" style={{ aspectRatio: wedding.photoRatio ?? "3 / 4" }}>
         {wedding.photo ? (
           <Image
             src={wedding.photo}
@@ -33,7 +33,7 @@ export default function Page() {
             preload
             quality={90}
             sizes="(max-width: 420px) 200vw, 840px"
-            style={{ objectFit: "cover" }}
+            style={{ objectFit: "cover", objectPosition: wedding.photoPosition ?? "50% 50%" }}
           />
         ) : (
           <div className="photo-empty">PHOTO</div>
