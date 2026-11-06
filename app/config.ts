@@ -23,7 +23,7 @@ export const wedding: {
   place: "에린 울라 대륙 이멘마하 언약식장",
   // 메인 사진: public 폴더에 넣고 경로 입력 (예: "/main.jpg"). 비워두면 회색 자리표시.
   photo: "/1.png",
-  photoRatio: "3 / 4",
+  photoRatio: "1379 / 1012",
   photoPosition: "50% 50%",
   // 갤러리 사진: public/gallery 폴더에 넣고 경로 입력 (예: "/gallery/1.jpg").
   // 빈 문자열("")은 회색 자리표시로 나옵니다. 개수는 자유롭게 늘리고 줄이면 됩니다.
