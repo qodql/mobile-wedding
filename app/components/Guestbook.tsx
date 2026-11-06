@@ -6,7 +6,7 @@ type Entry = { id: string; name: string; message: string; createdAt: number };
 type Field = "name" | "password" | "message";
 type FieldErrors = Partial<Record<Field, string>>;
 
-const PAGE = 5;
+const PAGE = 3;
 
 const fmt = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
