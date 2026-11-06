@@ -1,10 +1,12 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type Entry = { id: string; name: string; message: string; createdAt: number };
+type Field = "name" | "password" | "message";
+type FieldErrors = Partial<Record<Field, string>>;
 
-const PAGE = 5;
+const PAGE = 3;
 
 const fmt = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -24,6 +26,16 @@ async function readError(res: Response) {
   }
 }
 
+// 브라우저 기본 경고 대신 쓰는 검사 (서버에서도 같은 규칙으로 한 번 더 검사함)
+function validate(name: string, password: string, message: string): FieldErrors {
+  const e: FieldErrors = {};
+  if (!name.trim()) e.name = "닉네임을 입력해 주세요";
+  if (!password) e.password = "비밀번호를 입력해 주세요";
+  else if (password.length < 4) e.password = "비밀번호는 4자 이상이에요";
+  if (!message.trim()) e.message = "축하 메시지를 입력해 주세요";
+  return e;
+}
+
 export default function Guestbook() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -35,6 +47,13 @@ export default function Guestbook() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const refs = {
+    name: useRef<HTMLInputElement>(null),
+    password: useRef<HTMLInputElement>(null),
+    message: useRef<HTMLTextAreaElement>(null),
+  };
 
   const [deleting, setDeleting] = useState<string | null>(null);
   const [delPassword, setDelPassword] = useState("");
@@ -56,9 +75,22 @@ export default function Guestbook() {
       });
   }, []);
 
+  // 입력을 고치면 그 칸의 경고는 바로 사라짐
+  const clearError = (field: Field) =>
+    setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (sending) return;
+
+    const errors = validate(name, password, message);
+    setFieldErrors(errors);
+    const firstInvalid = (["name", "password", "message"] as Field[]).find((f) => errors[f]);
+    if (firstInvalid) {
+      refs[firstInvalid].current?.focus();
+      return;
+    }
+
     setSending(true);
     setFormError("");
     try {
@@ -80,6 +112,10 @@ export default function Guestbook() {
   };
 
   const remove = async (id: string) => {
+    if (!delPassword) {
+      setDelError("비밀번호를 입력해 주세요");
+      return;
+    }
     setDelError("");
     const res = await fetch("/api/guestbook", {
       method: "DELETE",
@@ -97,36 +133,72 @@ export default function Guestbook() {
 
   return (
     <div className="gb">
-      <form className="gb-form" onSubmit={submit}>
+      {/* noValidate: 브라우저 기본 경고 말풍선을 끄고 아래 안내 문구로 대신함 */}
+      <form className="gb-form" onSubmit={submit} noValidate>
         <div className="gb-row">
-          <input
-            className="gb-input"
-            placeholder="이름"
-            value={name}
-            maxLength={20}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <input
-            className="gb-input"
-            type="password"
-            placeholder="비밀번호 (삭제용)"
-            value={password}
-            minLength={4}
-            maxLength={20}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="gb-field">
+            <input
+              ref={refs.name}
+              className={`gb-input ${fieldErrors.name ? "invalid" : ""}`}
+              placeholder="닉네임"
+              value={name}
+              maxLength={20}
+              aria-invalid={!!fieldErrors.name}
+              aria-describedby="gb-err-name"
+              onChange={(e) => {
+                setName(e.target.value);
+                clearError("name");
+              }}
+            />
+            {fieldErrors.name && (
+              <p id="gb-err-name" className="gb-hint">
+                {fieldErrors.name}
+              </p>
+            )}
+          </div>
+          <div className="gb-field">
+            <input
+              ref={refs.password}
+              className={`gb-input ${fieldErrors.password ? "invalid" : ""}`}
+              type="password"
+              placeholder="비밀번호 (삭제용)"
+              value={password}
+              maxLength={20}
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby="gb-err-password"
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearError("password");
+              }}
+            />
+            {fieldErrors.password && (
+              <p id="gb-err-password" className="gb-hint">
+                {fieldErrors.password}
+              </p>
+            )}
+          </div>
         </div>
-        <textarea
-          className="gb-input gb-text"
-          placeholder="축하 메시지를 남겨주세요"
-          value={message}
-          maxLength={300}
-          rows={3}
-          onChange={(e) => setMessage(e.target.value)}
-          required
-        />
+        <div className="gb-field">
+          <textarea
+            ref={refs.message}
+            className={`gb-input gb-text ${fieldErrors.message ? "invalid" : ""}`}
+            placeholder="축하 메시지를 남겨주세요"
+            value={message}
+            maxLength={300}
+            rows={3}
+            aria-invalid={!!fieldErrors.message}
+            aria-describedby="gb-err-message"
+            onChange={(e) => {
+              setMessage(e.target.value);
+              clearError("message");
+            }}
+          />
+          {fieldErrors.message && (
+            <p id="gb-err-message" className="gb-hint">
+              {fieldErrors.message}
+            </p>
+          )}
+        </div>
         <div className="gb-actions">
           <span className="gb-len">{message.length}/300</span>
           <button className="gb-submit" type="submit" disabled={sending || status === "error"}>
@@ -165,24 +237,28 @@ export default function Guestbook() {
             {deleting === en.id && (
               <form
                 className="gb-delform"
+                noValidate
                 onSubmit={(e) => {
                   e.preventDefault();
                   remove(en.id);
                 }}
               >
                 <input
-                  className="gb-input"
+                  className={`gb-input ${delError ? "invalid" : ""}`}
                   type="password"
                   placeholder="작성 시 비밀번호"
                   value={delPassword}
-                  onChange={(e) => setDelPassword(e.target.value)}
+                  aria-invalid={!!delError}
+                  onChange={(e) => {
+                    setDelPassword(e.target.value);
+                    setDelError("");
+                  }}
                   autoFocus
-                  required
                 />
                 <button className="gb-submit small" type="submit">
                   삭제
                 </button>
-                {delError && <p className="gb-error">{delError}</p>}
+                {delError && <p className="gb-hint">{delError}</p>}
               </form>
             )}
           </article>
@@ -196,4 +272,3 @@ export default function Guestbook() {
       </div>
     </div>
   );
-}

@@ -57,7 +57,7 @@ export async function POST(req: Request) {
   const message = String(body.message ?? "").trim();
   const password = String(body.password ?? "");
 
-  if (!name || name.length > 20) return error("이름은 1~20자로 입력해 주세요.", 400);
+  if (!name || name.length > 20) return error("닉네임은 1~20자로 입력해 주세요.", 400);
   if (!message || message.length > 300) return error("메시지는 1~300자로 입력해 주세요.", 400);
   if (password.length < 4 || password.length > 20) return error("비밀번호는 4~20자로 입력해 주세요.", 400);
 
