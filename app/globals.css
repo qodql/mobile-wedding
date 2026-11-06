@@ -194,3 +194,23 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   font-size: 13px; color: var(--muted);
   border: 1px solid var(--line); border-radius: 8px;
 }
+/* 방명록 입력 안내 문구 (브라우저 기본 경고 대체) */
+.gb-field { display: flex; flex-direction: column; min-width: 0; }
+.gb-input.invalid { border-color: #d99a9a; background: #fff8f8; }
+.gb-input.invalid:focus { border-color: var(--accent); }
+.gb-hint {
+  margin-top: 6px;
+  padding-left: 2px;
+  font-size: 12px;
+  color: #c45a5a;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: gb-hint-in 0.18s ease-out;
+}
+.gb-hint::before { content: "♥"; font-size: 10px; color: var(--accent); }
+@keyframes gb-hint-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+.gb-delform .gb-hint { width: 100%; margin-top: 0; }
